@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thermomix Bread Dough Reference: Hydration, Models &amp; Fixes</title>
+<meta name="description" content="Lookup tables and calculators for Thermomix bread dough: hydration by dough type, ratio scaler, model limits, troubleshooting and readiness checks.">
+<style>
+:root{
+  --bg:#fbfaf7;--fg:#1f1d1a;--muted:#6b665e;--card:#ffffff;--line:#e4dfd5;
+  --accent:#b4531a;--accent-soft:#f8e7d9;--ok:#2f6f4e;--warn:#8a5200;--warn-bg:#fff3d6;--bad:#a12b2b;
+  --radius:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#16140f;--fg:#efebe3;--muted:#a39d91;--card:#201d17;--line:#38332a;
+    --accent:#f0a06a;--accent-soft:#3a2a1c;--ok:#7cc79d;--warn:#f0c36a;--warn-bg:#3a2f14;--bad:#f08a8a}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header{padding:28px 0 12px;border-bottom:1px solid var(--line)}
+h1{margin:0 0 6px;font-size:1.7rem;line-height:1.2}
+h2{margin:0 0 4px;font-size:1.25rem}
+h3{margin:18px 0 6px;font-size:1rem}
+.lede{margin:0;color:var(--muted)}
+.src{margin:8px 0 0;font-size:.9rem;color:var(--muted)}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:8px;padding-bottom:8px}
+nav a{white-space:nowrap;text-decoration:none;color:var(--fg);padding:5px 11px;border-radius:999px;font-size:.88rem;border:1px solid transparent}
+nav a:hover{border-color:var(--line);background:var(--card)}
+section{padding:26px 0 6px}
+.sub{margin:0 0 12px;color:var(--muted);font-size:.92rem}
+.callout{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:var(--radius);padding:14px 18px}
+.callout h2{margin-bottom:8px}
+.callout ul{margin:0;padding-left:18px}
+.callout li{margin:3px 0}
+.warn{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:9px 12px;font-size:.92rem;margin-top:10px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+input[type=search],input[type=number],select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+input[type=search]{min-width:220px;flex:1 1 220px}
+input[type=number]{width:130px}
+.chip{font:inherit;font-size:.86rem;cursor:pointer;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.count{margin-left:auto;color:var(--muted);font-size:.86rem}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+caption{text-align:left;padding:8px 12px;color:var(--muted);font-size:.85rem}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-top:1px solid var(--line)}
+thead th{background:var(--bg);font-weight:600;border-top:0;white-space:nowrap}
+th.s{cursor:pointer;user-select:none}
+th.s::after{content:" \2195";color:var(--muted);font-size:.8em}
+th.s[aria-sort=ascending]::after{content:" \25B2";color:var(--accent)}
+th.s[aria-sort=descending]::after{content:" \25BC";color:var(--accent)}
+tbody th{font-weight:600}
+tr[hidden]{display:none}
+.tag{display:inline-block;font-size:.76rem;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.tag.g{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.card label{display:block;font-size:.86rem;color:var(--muted);margin:10px 0 3px}
+.card label:first-of-type{margin-top:0}
+.out{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:.94rem}
+.out strong{font-variant-numeric:tabular-nums}
+.big{font-size:1.5rem;font-weight:700;color:var(--accent)}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{padding:8px 12px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.checks li:first-child{border-top:0}
+.checks input{margin-top:5px}
+.checks b{display:block}
+.checks span{color:var(--muted);font-size:.9rem}
+.empty td{color:var(--muted);text-align:center}
+footer{margin:34px 0 40px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+@media print{
+  nav,.tools,.card input,.card select{display:none}
+  body{background:#fff;color:#000}
+  section{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Thermomix Bread Dough Reference</h1>
+    <p class="lede">Lookup tables and calculators: hydration by dough type, ratio scaler, model limits, troubleshooting, readiness checks.</p>
+    <p class="src">Data compiled from and expanded on this guide: <a href="https://kitchenmemo.com/thermomix-bread-dough-basics/" rel="noopener">Thermomix bread dough basics guide</a>.</p>
+  </div>
+</header>
+
+<nav aria-label="Sections">
+  <div class="wrap">
+    <a href="#quick">Quick reference</a>
+    <a href="#doughs">Dough types</a>
+    <a href="#calc">Calculators</a>
+    <a href="#trouble">Troubleshooting</a>
+    <a href="#models">Models</a>
+    <a href="#checks">Readiness checks</a>
+    <a href="#compare">Appliances</a>
+    <a href="#storage">Storage</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section id="quick">
+  <div class="callout">
+    <h2>Quick reference</h2>
+    <ul>
+      <li><strong>Baseline ratio:</strong> 500 g bread flour : 300&ndash;325 g water : 7 g instant yeast : 8&ndash;10 g salt : 10&ndash;15 g oil (optional). In baker&rsquo;s percentages that is 60&ndash;65% water, 1.4% yeast, 1.6&ndash;2% salt, 2&ndash;3% oil.</li>
+      <li><strong>Hydration feel:</strong> 55&ndash;58% firm &bull; 60&ndash;65% soft and slightly tacky &bull; 70%+ wet and sticky.</li>
+      <li><strong>Warm liquid:</strong> about 37&deg;C (99&deg;F) is a common starting point, not a requirement. Avoid hot liquid, which can damage yeast.</li>
+      <li><strong>Kneading:</strong> follow your model and recipe. Cookidoo equates 2 minutes of TM6 Dough mode to roughly 10 minutes of hand kneading.</li>
+      <li><strong>What Dough mode does not do:</strong> it does not prove or bake. TM6 and TM7 offer Fermentation mode as an optional proving route.</li>
+      <li><strong>Limits:</strong> TM6 dough-mode quantity is 1 kg. TM7 Dough mode is unavailable at a bowl temperature of 60&deg;C or higher. Check your own manual.</li>
+      <li><strong>Tests:</strong> windowpane test = gluten development. Poke test = final proof.</li>
+      <li><strong>Sticky dough:</strong> do not add flour straight away. Rest it, then reassess.</li>
+      <li><strong>First proof:</strong> commonly 1&ndash;2 hours, depending on temperature, hydration, yeast and flour.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="doughs">
+  <h2>Dough type lookup</h2>
+  <p class="sub">Search, filter by category or hydration band, and click a column header to sort. Hydration = liquid weight &divide; flour weight.</p>
+
+  <div class="tools">
+    <input type="search" id="dq" placeholder="Search dough, flour, note&hellip;" aria-label="Search dough types">
+    <select id="dband" aria-label="Hydration band">
+      <option value="">All hydration</option>
+      <option value="low">Lower (under 60%)</option>
+      <option value="med">Medium (60&ndash;69%)</option>
+      <option value="high">Higher (70%+)</option>
+    </select>
+    <span class="count" id="dcount" aria-live="polite"></span>
+  </div>
+  <div class="tools" id="dcats" role="group" aria-label="Category filter">
+    <button class="chip" type="button" data-cat="" aria-pressed="true">All</button>
+    <button class="chip" type="button" data-cat="Lean" aria-pressed="false">Lean</button>
+    <button class="chip" type="button" data-cat="Enriched" aria-pressed="false">Enriched</button>
+    <button class="chip" type="button" data-cat="Flatbread" aria-pressed="false">Flatbread</button>
+    <button class="chip" type="button" data-cat="High-hydration" aria-pressed="false">High-hydration</button>
+    <button class="chip" type="button" data-cat="Whole-grain" aria-pressed="false">Whole-grain</button>
+  </div>
+
+  <div class="tablewrap">
+    <table class="sortable" id="dtable">
+      <caption>Basis: &ldquo;Core data&rdquo; = figures from the baseline guide. &ldquo;General range&rdquo; = typical baking-convention ranges, approximate; verify against a tested recipe.</caption>
+      <thead>
+        <tr>
+          <th class="s">Dough type</th>
+          <th class="s">Category</th>
+          <th class="s">Typical hydration</th>
+          <th>Dough feel</th>
+          <th>Enrichment</th>
+          <th>Flour</th>
+          <th>Handling note</th>
+          <th class="s">Basis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-cat="Lean" data-min="55" data-max="58">
+          <th>Firm, lower-hydration loaf</th><td><span class="tag">Lean</span></td><td data-sort="55">55&ndash;58%</td>
+          <td>Firm, relatively dry</td><td>None</td><td>Bread flour</td>
+          <td>Easier to handle and shape; crumb tends to be tighter and possibly denser.</td><td><span class="tag g">Core data</span></td>
+        </tr>
+        <tr data-cat="Lean" data-min="60" data-max="65">
+          <th>Basic white sandwich loaf</th><td><span class="tag">Lean</span></td><td data-sort="60">60&ndash;65%</td>
+          <td>Soft, slightly tacky</td><td>Optional oil (10&ndash;15 g per 500 g flour)</td><td>Bread flour</td>
+          <td>Baseline formula. Manageable with lightly oiled or floured hands; balanced, moderately open crumb.</td><td><span class="tag g">Core data</span></td>
+        </tr>
+        <tr data-cat="High-hydration" data-min="70" data-max="75">
+          <th>High-hydration open-crumb loaf</th><td><span class="tag">High-hydration</span></td><td data-sort="70">70%+</td>
+          <td>Wet, elastic, noticeably sticky</td><td>None</td><td>Bread flour</td>
+          <td>Needs careful handling and shaping and suitable gluten development to give a more open structure.</td><td><span class="tag g">Core data</span></td>
+        </tr>
+        <tr data-cat="Lean" data-min="65" data-max="75">
+          <th>Artisan-style loaf</th><td><span class="tag">Lean</span></td><td data-sort="65">65&ndash;75% (varies)</td>
+          <td>Soft to slightly wet</td><td>None</td><td>Bread flour</td>
+          <td>Chewier crust, more open crumb. Usually longer fermentation and shaping that preserves gas.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Lean" data-min="65" data-max="75">
+          <th>Baguette</th><td><span class="tag">Lean</span></td><td data-sort="65">65&ndash;75%</td>
+          <td>Soft, extensible</td><td>None</td><td>Bread flour</td>
+          <td>Gentle shaping to keep gas; do not add flour at the shaping stage.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Lean" data-min="65" data-max="75">
+          <th>P&atilde;o de &aacute;gua (Portuguese-style)</th><td><span class="tag">Lean</span></td><td data-sort="65">65&ndash;75% (recipe-specific)</td>
+          <td>Soft, slightly tacky</td><td>None</td><td>Bread flour</td>
+          <td>Treat as a dedicated recipe, not the sandwich-loaf formula. Cookidoo lists a P&atilde;o de &aacute;gua recipe.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="High-hydration" data-min="75" data-max="85">
+          <th>Ciabatta</th><td><span class="tag">High-hydration</span></td><td data-sort="75">75&ndash;85%</td>
+          <td>Very wet, loose</td><td>None</td><td>Bread flour</td>
+          <td>Very sticky. Build strength through development and rest rather than extra flour; check your model&rsquo;s dough limits.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="High-hydration" data-min="70" data-max="80">
+          <th>Focaccia</th><td><span class="tag">High-hydration</span></td><td data-sort="70">70&ndash;80%</td>
+          <td>Wet, slack</td><td>Generous olive oil</td><td>Bread flour</td>
+          <td>Often oiled into the tin rather than shaped on a floured surface.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Flatbread" data-min="58" data-max="68">
+          <th>Pizza dough</th><td><span class="tag">Flatbread</span></td><td data-sort="58">58&ndash;68%</td>
+          <td>Soft, smooth</td><td>Optional oil</td><td>Bread flour</td>
+          <td>Cold, slow fermentation is common; check development before shaping.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Flatbread" data-min="60" data-max="68">
+          <th>Pita</th><td><span class="tag">Flatbread</span></td><td data-sort="60">60&ndash;68%</td>
+          <td>Soft, elastic</td><td>Optional oil</td><td>Bread flour</td>
+          <td>Needs enough gluten strength to puff when rolled thin.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Flatbread" data-min="58" data-max="68">
+          <th>Naan-style flatbread</th><td><span class="tag">Flatbread</span></td><td data-sort="58">58&ndash;68%</td>
+          <td>Soft, slightly tacky</td><td>Yoghurt or milk, oil</td><td>Bread flour</td>
+          <td>Dairy changes dough behaviour; follow a recipe written for it.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Lean" data-min="50" data-max="57">
+          <th>Bagels</th><td><span class="tag">Lean</span></td><td data-sort="50">50&ndash;57%</td>
+          <td>Very stiff</td><td>None</td><td>High-protein bread flour</td>
+          <td>Stiff dough loads the machine; keep to your model&rsquo;s batch limit and reduce the batch if it strains.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Enriched" data-min="55" data-max="65">
+          <th>Soft dinner rolls</th><td><span class="tag">Enriched</span></td><td data-sort="55">55&ndash;65%</td>
+          <td>Soft, smooth, slightly tacky</td><td>Milk, butter, sugar, egg</td><td>Bread flour</td>
+          <td>Fat and sugar change handling and proving speed; use a recipe designed for enriched dough.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Enriched" data-min="55" data-max="65">
+          <th>Hot cross buns</th><td><span class="tag">Enriched</span></td><td data-sort="55">55&ndash;65%</td>
+          <td>Soft, rich</td><td>Eggs, butter, milk, sugar, fruit</td><td>Bread flour</td>
+          <td>Example of how enrichment changes a basic yeast dough&rsquo;s composition.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Enriched" data-min="45" data-max="55">
+          <th>Brioche</th><td><span class="tag">Enriched</span></td><td data-sort="45">45&ndash;55% (liquid mostly from eggs)</td>
+          <td>Soft, sticky from fat</td><td>Eggs, large amount of butter, sugar</td><td>Bread flour</td>
+          <td>Hydration figure depends on how eggs and butter are counted. Butter is usually added gradually.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Whole-grain" data-min="70" data-max="80">
+          <th>100% wholemeal loaf</th><td><span class="tag">Whole-grain</span></td><td data-sort="70">70&ndash;80%</td>
+          <td>Thick, grainy</td><td>None</td><td>Wholemeal</td>
+          <td>Bran affects hydration and gluten development; adjust hydration and fermentation versus white flour.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr data-cat="Whole-grain" data-min="60" data-max="70">
+          <th>Spelt loaf</th><td><span class="tag">Whole-grain</span></td><td data-sort="60">60&ndash;70%</td>
+          <td>Soft, delicate</td><td>None</td><td>Spelt</td>
+          <td>Gluten behaves differently from wheat. Do not carry over standard wheat knead times.</td><td><span class="tag g">General range</span></td>
+        </tr>
+        <tr class="empty" id="dempty" hidden><td colspan="8">No dough types match these filters.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="calc">
+  <h2>Calculators</h2>
+  <p class="sub">Both use the baseline ratio framework, which is a starting point and not a tested recipe.</p>
+  <div class="grid">
+
+    <div class="card" id="hcalc">
+      <h3 style="margin-top:0">Hydration checker</h3>
+      <label for="hf">Flour (g)</label>
+      <input type="number" id="hf" min="0" step="1" placeholder="e.g. 500">
+      <label for="hw">Water (g)</label>
+      <input type="number" id="hw" min="0" step="1" placeholder="e.g. 310">
+      <label for="ho">Other liquid, e.g. milk or egg (g, optional)</label>
+      <input type="number" id="ho" min="0" step="1" placeholder="0">
+      <div class="out" id="hout" aria-live="polite">Enter flour and water weights.</div>
+    </div>
+
+    <div class="card" id="scalec">
+      <h3 style="margin-top:0">Ratio scaler</h3>
+      <label for="sf">Bread flour (g)</label>
+      <input type="number" id="sf" min="0" step="1" placeholder="e.g. 500" value="500">
+      <label><input type="checkbox" id="so" checked> Include optional oil</label>
+      <div class="out" id="sout" aria-live="polite"></div>
+    </div>
+
+  </div>
+</section>
+
+<section id="trouble">
+  <h2>Troubleshooting matrix</h2>
+  <p class="sub">Find a symptom, its likely causes, the fix and how to prevent it.</p>
+  <div class="tools">
+    <input type="search" id="tq" placeholder="Search symptom or cause&hellip;" aria-label="Search troubleshooting">
+    <select id="tstage" aria-label="Stage filter">
+      <option value="">All stages</option>
+      <option>Mixing</option>
+      <option>Proving</option>
+      <option>Baking</option>
+      <option>Machine</option>
+    </select>
+    <span class="count" id="tcount" aria-live="polite"></span>
+  </div>
+  <div class="tablewrap">
+    <table class="sortable" id="ttable">
+      <thead>
+        <tr><th class="s">Symptom</th><th class="s">Stage</th><th>Possible cause</th><th>Practical fix</th><th>Prevention</th></tr>
+      </thead>
+      <tbody>
+        <tr data-stage="Mixing">
+          <th>Sticky dough</th><td><span class="tag">Mixing</span></td>
+          <td>High hydration, flour that absorbs differently, or not enough rest</td>
+          <td>Give the flour time to hydrate and reassess before adding any flour. If still very loose, check the weights against the recipe.</td>
+          <td>Weigh ingredients; use the same flour each time.</td>
+        </tr>
+        <tr data-stage="Proving">
+          <th>Dense loaf</th><td><span class="tag">Proving</span></td>
+          <td>Weak gluten development, under-proving, too much flour, or low yeast activity</td>
+          <td>Check dough structure and allow enough proving time.</td>
+          <td>Avoid adding unnecessary flour. Do not blame kneading alone; hydration and proving matter equally.</td>
+        </tr>
+        <tr data-stage="Proving">
+          <th>Dough not rising</th><td><span class="tag">Proving</span></td>
+          <td>Inactive yeast, unsuitable liquid temperature, or a cold environment</td>
+          <td>Check the yeast, then move the dough somewhere warmer. Do not immediately add more yeast.</td>
+          <td>Store yeast correctly and check its expiry date.</td>
+        </tr>
+        <tr data-stage="Mixing">
+          <th>Dry or tight dough</th><td><span class="tag">Mixing</span></td>
+          <td>Too little water or too much flour</td>
+          <td>Reassess hydration and correct gradually if the formula allows.</td>
+          <td>Weigh flour instead of using cups.</td>
+        </tr>
+        <tr data-stage="Baking">
+          <th>Flat loaf after baking</th><td><span class="tag">Baking</span></td>
+          <td>Over-proving, weak dough structure, or unsuitable hydration</td>
+          <td>Review the final proof and shaping method. Check the dough before baking instead of relying on a timer.</td>
+          <td>Use the poke test and keep the process consistent.</td>
+        </tr>
+        <tr data-stage="Machine">
+          <th>Dough climbing the bowl or feeling unusually warm</th><td><span class="tag">Machine</span></td>
+          <td>Batch too large, unusually warm dough, or unsuitable kneading duration</td>
+          <td>Stop the cycle and check the batch against your model&rsquo;s instructions. Reduce the batch if overloaded.</td>
+          <td>Use appropriate quantities; do not experiment beyond model limits or leave experimental batches unattended.</td>
+        </tr>
+        <tr class="empty" id="tempty" hidden><td colspan="5">No symptoms match these filters.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="models">
+  <h2>Model differences</h2>
+  <p class="sub">Select a model to show only its row.</p>
+  <div class="tools">
+    <select id="mq" aria-label="Thermomix model">
+      <option value="">All models</option>
+      <option>TM31</option><option>TM5</option><option>TM6</option><option>TM7</option>
+    </select>
+  </div>
+  <div class="tablewrap">
+    <table id="mtable">
+      <thead>
+        <tr><th>Model</th><th>How to start Dough mode</th><th>Fermentation mode</th><th>Capacity and operating notes</th></tr>
+      </thead>
+      <tbody>
+        <tr data-model="TM31">
+          <th>TM31</th>
+          <td>Speed selector position plus the Dough mode button; alternating operation</td>
+          <td>Not listed &mdash; use a separate covered container</td>
+          <td>Manual specifies a 2-litre maximum bowl capacity. This is not a universal maximum dough weight. Dough can cause the machine to move through imbalance.</td>
+        </tr>
+        <tr data-model="TM5">
+          <th>TM5</th>
+          <td>Ear-of-wheat Dough mode, started with the dial</td>
+          <td>Not listed &mdash; use a separate covered container</td>
+          <td>Use published recipe quantities, reduce the batch if overloaded and supervise experimental preparations.</td>
+        </tr>
+        <tr data-model="TM6">
+          <th>TM6</th>
+          <td>Dedicated Dough mode; alternating blade movements with pauses</td>
+          <td>Yes &mdash; proofing in the Varoma arrangement (optional)</td>
+          <td>Cookidoo gives a 1 kg maximum for Dough mode. Follow the recipe instructions.</td>
+        </tr>
+        <tr data-model="TM7">
+          <th>TM7</th>
+          <td>Choose Dough mode from the modes screen</td>
+          <td>Yes &mdash; compatible guidance applies (optional)</td>
+          <td>Dough mode is unavailable when the bowl is at 60&deg;C or higher. Follow the TM7 manual for batch limits.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">Bowl liquid capacity is not the same as safe dough capacity. Do not work out a maximum flour quantity from bowl volume.</div>
+</section>
+
+<section id="checks">
+  <h2>Dough readiness checks</h2>
+  <p class="sub">Tick through the checkpoints as you go. Ticks are not saved.</p>
+  <div class="tablewrap">
+    <ul class="checks">
+      <li><input type="checkbox" id="c1"><label for="c1"><b>Before kneading</b><span>Ingredient weights are correct.</span></label></li>
+      <li><input type="checkbox" id="c2"><label for="c2"><b>After kneading</b><span>Dough is cohesive, soft and elastic.</span></label></li>
+      <li><input type="checkbox" id="c3"><label for="c3"><b>Windowpane test</b><span>A small piece stretches thin, with light showing through, before tearing. A guide, not a strict pass or fail: long-fermented dough keeps developing during rest.</span></label></li>
+      <li><input type="checkbox" id="c4"><label for="c4"><b>First proof</b><span>Dough has expanded considerably (often about doubled, though not every formula needs to double).</span></label></li>
+      <li><input type="checkbox" id="c5"><label for="c5"><b>After shaping</b><span>Smooth, well-formed loaf; no heavy flouring.</span></label></li>
+      <li><input type="checkbox" id="c6"><label for="c6"><b>Final proof (poke test)</b><span>Indentation springs back fast = needs more time. Indentation stays = generally ready. Fragile or collapsing = may be over-proved.</span></label></li>
+      <li><input type="checkbox" id="c7"><label for="c7"><b>Before baking</b><span>Oven and pan prepared according to the recipe.</span></label></li>
+    </ul>
+  </div>
+  <h3>Proving speed factors</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Factor</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><th>Temperature</th><td>Warmer surroundings generally speed up fermentation.</td></tr>
+        <tr><th>Humidity</th><td>Dry air can form a skin on exposed dough; humid air helps prevent it.</td></tr>
+        <tr><th>Altitude</th><td>Lower pressure can change dough expansion and fermentation.</td></tr>
+        <tr><th>Flour</th><td>Wholemeal, spelt and different wheat flours absorb water and build structure differently.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="compare">
+  <h2>Thermomix vs bread machine vs stand mixer</h2>
+  <p class="sub">Which appliance covers which stage.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Stage / feature</th><th>Thermomix</th><th>Bread machine</th><th>Stand mixer</th></tr></thead>
+      <tbody>
+        <tr><th>Mixes dough</th><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+        <tr><th>Kneads dough</th><td>Yes (Dough mode)</td><td>Yes</td><td>Yes, with dough hook</td></tr>
+        <tr><th>Proves dough</th><td>Separate container, or Fermentation mode on TM6/TM7</td><td>Usually yes</td><td>Separate proving</td></tr>
+        <tr><th>Bakes a loaf</th><td>No</td><td>Yes, on suitable programs</td><td>No</td></tr>
+        <tr><th>Crust and shape control</th><td>Oven provides it</td><td>Limited by machine pan</td><td>Oven provides it</td></tr>
+        <tr><th>Batch capacity</th><td>Model and recipe dependent</td><td>Machine dependent</td><td>Bowl and hook dependent</td></tr>
+        <tr><th>Cleaning</th><td>Bowl and blade</td><td>Pan and paddle</td><td>Bowl and dough hook</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="storage">
+  <h2>Storage and make-ahead</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Method</th><th>What to know</th></tr></thead>
+      <tbody>
+        <tr><th>Refrigerate unbaked dough</th><td>Covered dough can be chilled for slower fermentation if the formula supports cold proving. Cold dough may need extra time to finish expanding, so check it before baking.</td></tr>
+        <tr><th>Freeze shaped dough</th><td>Possible in portions, but yeast activity and rise can be reduced. Wrap securely, label, thaw in the fridge, then complete proving. Less reliable than baking fresh.</td></tr>
+        <tr><th>Store baked bread</th><td>Cool completely, then keep in a bread bag or container at room temperature. Freeze sliced portions for longer storage.</td></tr>
+        <tr><th>Scaling up</th><td>Do not simply double flour and water. Check the model&rsquo;s dough limit and make separate batches when needed.</td></tr>
+        <tr><th>Scaling down</th><td>Keep the formula&rsquo;s proportions and weigh accurately.</td></tr>
+        <tr><th>Food safety</th><td>Do not taste raw dough: raw flour can carry harmful bacteria. Cook dough thoroughly and wash hands and surfaces after handling raw flour. Discard dough with visible mould, odd discolouration or other signs of contamination.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Ranges marked &ldquo;General range&rdquo; are approximate baking-convention figures. Always follow a tested recipe and your own model&rsquo;s manual for kneading times and batch limits.
+</footer>
+
+</main>
+
+<script>
+(function () {
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+
+  /* ---------- sortable tables ---------- */
+  $$('table.sortable').forEach(function (table) {
+    var heads = $$('thead th', table);
+    heads.forEach(function (th, idx) {
+      if (!th.classList.contains('s')) return;
+      th.tabIndex = 0;
+      th.setAttribute('aria-sort', 'none');
+      function sort() {
+        var asc = th.getAttribute('aria-sort') !== 'ascending';
+        heads.forEach(function (h) { if (h.classList.contains('s')) h.setAttribute('aria-sort', 'none'); });
+        th.setAttribute('aria-sort', asc ? 'ascending' : 'descending');
+        var tbody = $('tbody', table);
+        var rows = $$('tr', tbody).filter(function (r) { return !r.classList.contains('empty'); });
+        var empty = $('tr.empty', tbody);
+        function key(r) {
+          var cell = r.children[idx];
+          var v = cell.getAttribute('data-sort');
+          if (v === null) v = cell.textContent.trim().toLowerCase();
+          var n = parseFloat(v);
+          return isNaN(n) || String(n) !== String(v).trim() ? v : n;
+        }
+        rows.sort(function (a, b) {
+          var x = key(a), y = key(b);
+          if (typeof x === 'number' && typeof y === 'number') return asc ? x - y : y - x;
+          x = String(x); y = String(y);
+          return asc ? x.localeCompare(y) : y.localeCompare(x);
+        });
+        rows.forEach(function (r) { tbody.appendChild(r); });
+        if (empty) tbody.appendChild(empty);
+      }
+      th.addEventListener('click', sort);
+      th.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sort(); }
+      });
+    });
+  });
+
+  /* ---------- dough filters ---------- */
+  var dState = { q: '', cat: '', band: '' };
+  function applyDough() {
+    var rows = $$('#dtable tbody tr[data-cat]');
+    var shown = 0;
+    rows.forEach(function (r) {
+      var mid = (parseFloat(r.getAttribute('data-min')) + parseFloat(r.getAttribute('data-max'))) / 2;
+      var band = mid < 60 ? 'low' : (mid < 70 ? 'med' : 'high');
+      var ok = (!dState.cat || r.getAttribute('data-cat') === dState.cat) &&
+               (!dState.band || band === dState.band) &&
+               (!dState.q || r.textContent.toLowerCase().indexOf(dState.q) !== -1);
+      r.hidden = !ok;
+      if (ok) shown++;
+    });
+    $('#dempty').hidden = shown !== 0;
+    $('#dcount').textContent = shown + ' of ' + rows.length + ' shown';
+  }
+  $('#dq').addEventListener('input', function (e) { dState.q = e.target.value.trim().toLowerCase(); applyDough(); });
+  $('#dband').addEventListener('change', function (e) { dState.band = e.target.value; applyDough(); });
+  $$('#dcats .chip').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      dState.cat = btn.getAttribute('data-cat');
+      $$('#dcats .chip').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      applyDough();
+    });
+  });
+  applyDough();
+
+  /* ---------- troubleshooting filters ---------- */
+  var tState = { q: '', stage: '' };
+  function applyTrouble() {
+    var rows = $$('#ttable tbody tr[data-stage]');
+    var shown = 0;
+    rows.forEach(function (r) {
+      var ok = (!tState.stage || r.getAttribute('data-stage') === tState.stage) &&
+               (!tState.q || r.textContent.toLowerCase().indexOf(tState.q) !== -1);
+      r.hidden = !ok;
+      if (ok) shown++;
+    });
+    $('#tempty').hidden = shown !== 0;
+    $('#tcount').textContent = shown + ' of ' + rows.length + ' shown';
+  }
+  $('#tq').addEventListener('input', function (e) { tState.q = e.target.value.trim().toLowerCase(); applyTrouble(); });
+  $('#tstage').addEventListener('change', function (e) { tState.stage = e.target.value; applyTrouble(); });
+  applyTrouble();
+
+  /* ---------- model filter ---------- */
+  $('#mq').addEventListener('change', function (e) {
+    var v = e.target.value;
+    $$('#mtable tbody tr').forEach(function (r) { r.hidden = !!v && r.getAttribute('data-model') !== v; });
+  });
+
+  /* ---------- hydration checker ---------- */
+  function num(id) { var v = parseFloat($(id).value); return isNaN(v) || v < 0 ? 0 : v; }
+  function hydrate() {
+    var f = num('#hf'), w = num('#hw'), o = num('#ho');
+    var out = $('#hout');
+    if (!f || (!w && !o)) { out.textContent = 'Enter flour and water weights.'; return; }
+    var h = (w + o) / f * 100;
+    var label;
+    if (h < 55) label = 'Below the lowest band listed (55\u201358%): very stiff.';
+    else if (h <= 58) label = 'Lower band (55\u201358%): firm and relatively dry; tighter, possibly denser crumb.';
+    else if (h < 60) label = 'Between the Lower and Medium bands.';
+    else if (h <= 65) label = 'Medium band (60\u201365%): soft and slightly tacky; balanced crumb.';
+    else if (h < 70) label = 'Between the Medium and Higher bands.';
+    else label = 'Higher band (70%+): wet, elastic, sticky; needs careful handling.';
+    out.innerHTML = '<span class="big">' + h.toFixed(1) + '%</span><br>' + label +
+      '<br><small>If it feels sticky, rest it and reassess before adding flour.</small>';
+  }
+  ['#hf', '#hw', '#ho'].forEach(function (id) { $(id).addEventListener('input', hydrate); });
+
+  /* ---------- ratio scaler ---------- */
+  function scale() {
+    var f = num('#sf');
+    var useOil = $('#so').checked;
+    var out = $('#sout');
+    if (!f) { out.textContent = 'Enter a flour weight.'; return; }
+    var wMin = f * 0.60, wMax = f * 0.65;
+    var y = f * 0.014;
+    var sMin = f * 0.016, sMax = f * 0.02;
+    var oMin = useOil ? f * 0.02 : 0, oMax = useOil ? f * 0.03 : 0;
+    var tMin = f + wMin + y + sMin + oMin;
+    var tMax = f + wMax + y + sMax + oMax;
+    function g(a, b) { return Math.round(a) === Math.round(b) ? Math.round(a) + ' g' : Math.round(a) + '\u2013' + Math.round(b) + ' g'; }
+    var html = '<strong>Flour:</strong> ' + Math.round(f) + ' g<br>' +
+      '<strong>Water (60\u201365%):</strong> ' + g(wMin, wMax) + '<br>' +
+      '<strong>Instant yeast (1.4%):</strong> ' + y.toFixed(1) + ' g<br>' +
+      '<strong>Salt (1.6\u20132%):</strong> ' + (sMin).toFixed(1) + '\u2013' + (sMax).toFixed(1) + ' g<br>' +
+      (useOil ? '<strong>Olive oil (2\u20133%):</strong> ' + g(oMin, oMax) + '<br>' : '') +
+      '<strong>Total dough:</strong> ' + g(tMin, tMax);
+    if (tMax > 1000) {
+      html += '<div class="warn">Upper estimate is over 1 kg. The TM6 Dough mode quantity cited is 1 kg, and other models have their own limits. Check your manual and split into batches rather than scaling up in one bowl.</div>';
+    }
+    out.innerHTML = html;
+  }
+  $('#sf').addEventListener('input', scale);
+  $('#so').addEventListener('change', scale);
+  scale();
+})();
+</script>
+</body>
+</html>
